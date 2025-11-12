@@ -79,7 +79,13 @@ async function run() {
       res.send(result);
     });
 
-    
+    //delete challenge
+    app.delete("/challenges/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const data = await challengesCollection.deleteOne(query);
+      res.send(data);
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
