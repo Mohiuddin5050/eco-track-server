@@ -66,11 +66,20 @@ async function run() {
       res.send(data);
     });
 
-    // events card data
+    // get events card data
     app.get("/eventCollection", async (req, res) => {
       const data = await eventsCollection.find().toArray();
       res.send(data);
     });
+
+    // create challenge
+    app.post("/challenges", async (req, res) => {
+      const data = req.body;
+      const result = await challengesCollection.insertOne(data);
+      res.send(result);
+    });
+
+    
 
     await client.db("admin").command({ ping: 1 });
     console.log(
