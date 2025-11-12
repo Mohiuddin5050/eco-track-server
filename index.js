@@ -42,9 +42,9 @@ async function run() {
     //get all challenges
     app.get("/challenges/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) };
       console.log(id);
-      const data = await challengesCollection.find(query).toArray();
+      const data = await challengesCollection.findOne(query);
       res.send(data);
     });
 
