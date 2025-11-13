@@ -4,7 +4,6 @@ require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 3000;
-console.log(process.env);
 
 app.use(cors());
 app.use(express.json());
@@ -25,7 +24,7 @@ app.get("/", (req, res) => {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const db = client.db("ecotrack_db");
     const challengesCollection = db.collection("challenges");
@@ -63,9 +62,22 @@ async function run() {
     });
 
     // recentTips card data
+    // app.get("/tips", async (req, res) => {
+    //   const data = await tipsCollection.find().toArray();
+    //   res.send(data);
+    // });
+
     app.get("/tips", async (req, res) => {
-      const data = await tipsCollection.find().toArray();
-      res.send(data);
+      try {
+        const data = await tipsCollection
+          .find()
+          .sort({ createdAt: -1 })
+          .limit(5)
+          .toArray();
+        res.send(data);
+      } catch (error) {
+        res.status(500).send({ error: "Failed to fetch tips" });
+      }
     });
 
     // get events card data
@@ -124,12 +136,26 @@ async function run() {
 
     //delete challenge
     app.delete("/challenges/:id", async (req, res) => {
-      const id = req.params.id;
-      const { email } = req.body;
-      console.log(email);
-      const query = { _id: new ObjectId(id) };
-      const data = await challengesCollection.deleteOne(query);
-      res.send(data);
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+
+        const result = await challengesCollection.deleteOne(query);
+
+        if (result.deletedCount === 1) {
+          res.send({
+            success: true,
+            message: "Challenge deleted successfully",
+          });
+        } else {
+          res
+            .status(404)
+            .send({ success: false, message: "Challenge not found" });
+        }
+      } catch (error) {
+        console.error("Error deleting challenge:", error);
+        res.status(500).send({ success: false, message: "Server error" });
+      }
     });
 
     //get user challenge details
@@ -223,7 +249,7 @@ async function run() {
       }
     });
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
