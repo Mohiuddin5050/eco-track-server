@@ -57,7 +57,7 @@ async function run() {
 
     // active challenge card data
     app.get("/activeChallenges", async (req, res) => {
-      const data = await challengesCollection.find().limit(4).toArray();
+      const data = await challengesCollection.find().limit(6).toArray();
       res.send(data);
     });
 
